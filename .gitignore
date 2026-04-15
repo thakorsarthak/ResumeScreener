@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+ResumeScreener/src/main/resources/application-secret.properties
+
