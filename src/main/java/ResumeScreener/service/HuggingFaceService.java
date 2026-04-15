@@ -1,6 +1,7 @@
 package ResumeScreener.service;
 
 import ResumeScreener.config.WebClientConfig;
+import ResumeScreener.dto.HuggingFaceLabelScore;
 import ResumeScreener.dto.ScreeningResultDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,13 @@ public class HuggingFaceService {
             "Git", "Redis", "Kafka", "Machine Learning", "SQL"
     );
 
+    private List<String> fallbackKeywordMatch(String text) {
+        log.warn("Using fallback keyword matching");
+        return SKILL_LABELS.stream()
+                .filter(skill -> text.toLowerCase().contains(skill.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
 
 public ScreeningResultDTO screenResume(String resumeText , String jobDescription){
 
@@ -45,14 +53,14 @@ public ScreeningResultDTO screenResume(String resumeText , String jobDescription
     List<String> jobSkills = extractSkills(jobDescription);
 
     // 3 --> Calculating matched and missing
-    List<String> matchedSkills = jobSkills.stream()
+    List<String> matchedSkills = resumeSkills.stream()
             .filter(skill -> jobSkills.stream()
                     .anyMatch(js -> js.equalsIgnoreCase(skill)))
             .collect(Collectors.toList());
 
-    List<String> missingSkills = resumeSkills.stream()
+    List<String> missingSkills = jobSkills.stream()
             .filter(skill -> resumeSkills.stream()
-                    .anyMatch(js -> js.equalsIgnoreCase(skill)))
+                    .noneMatch(js -> js.equalsIgnoreCase(skill)))
             .collect(Collectors.toList());
 
     // 4 --> Score of basis of matched/ missing skills
@@ -87,70 +95,78 @@ private List<String> extractSkills(String text){
                     "candidate_labels" , SKILL_LABELS,
                     "multi_labels", true));
     try{
-        Map response = huggingFaceWebClient.post()
-                .uri("https://router.huggingface.co/hf-inference/models/facebook/bart-large-mnli")
+
+        List<HuggingFaceLabelScore>  response = huggingFaceWebClient.post()
+                .uri("/hf-inference/models/facebook/bart-large-mnli")
                 .bodyValue(requestBody)
                 .retrieve()
-                .bodyToMono(Map.class)
+                .bodyToMono(new ParameterizedTypeReference<List<HuggingFaceLabelScore>>() {})
                 .timeout(Duration.ofSeconds(30))
                 .block();
 
 
+
+        if (response == null || response.isEmpty()) {
+            return fallbackKeywordMatch(text);        }
+
         // HuggingFace returns labels with scores
         // We take labels where score > 0.5 as "present"
-        List<String> labels = (List<String>) response.get("labels");
-        List<Double> scores = (List<Double>) response.get("scores");
+//        Map result = response.get(0);
+//        List<String> labels = (List<String>) result.get("labels");
+//        List<Double> scores = (List<Double>) result.get("scores");
+//
+        List<String> detectedSkills = response.stream()
+                .sorted((a, b) -> Double.compare(b.getScore(), a.getScore()))
+                .limit(5)
+                .map(HuggingFaceLabelScore::getLabel)
+                .collect(Collectors.toList());
 
-        List<String> detectSkills = new ArrayList<>();
-        for( int i = 0 ; i < labels.size(); i++){
-            if (scores.get(i) >0.5){
-                detectSkills.add(labels.get(i));
-            }
-        }
-
-        return detectSkills;
+        log.info("HuggingFace raw response: {}", response);
+        //return detectedSkills.isEmpty() ? fallbackKeywordMatch(text) : detectedSkills;
+        return detectedSkills;
 
     } catch (Exception e){
 
         log.error("HuggingFace API call failed: {}" , e.getMessage());
         // Fallback — simple keyword matching
-        return SKILL_LABELS.stream()
-                .filter(skill -> text.toLowerCase()
-                        .contains(skill.toLowerCase()))
-                .collect(Collectors.toList());
+        return  fallbackKeywordMatch(text);
     }
 }
 
-    private double getSemanticSimilarity(String resumeText , String jobDescription){
-        // Use sentence similarity model here
+    private double getSemanticSimilarity(String resumeText, String jobDescription) {
         Map<String, Object> requestBody = Map.of(
-                "inputs" , Map.of(
-                        "source_sentence" , jobDescription.length() > 500
-                        ? jobDescription.substring(0,500) : jobDescription,
-                        "sentences" ,List.of(
+                "inputs", Map.of(
+                        "source_sentence", jobDescription.length() > 500
+                                ? jobDescription.substring(0, 500) : jobDescription,
+                        "sentences", List.of(
                                 resumeText.length() > 500
-                                ? resumeText.substring(0,500):resumeText
+                                        ? resumeText.substring(0, 500) : resumeText
                         )
                 )
         );
-        try{
 
+        try {
             List<Double> response = huggingFaceWebClient.post()
-                    .uri("https://router.huggingface.co/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2/pipeline/sentence-similarity")
+                    .uri("/hf-inference/models/sentence-transformers/all-MiniLM-L6-v2")
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<List<Double>>() {})
                     .timeout(Duration.ofSeconds(30))
                     .block();
-                    return response != null && !response.isEmpty()
-                            ? response.get(0)* 100
-                            : 50.0;
-        } catch (Exception e){
 
+            if (response == null || response.isEmpty()) {
+                return 50.0;
+            }
+
+            // Value is between 0-1, convert to percentage
+            double similarity = response.get(0) * 100;
+            log.info("Semantic similarity score: {}%", similarity);
+            return similarity;
+
+        } catch (Exception e) {
             log.error("Semantic similarity failed: {}", e.getMessage());
             return 50.0;
         }
-
     }
 
 

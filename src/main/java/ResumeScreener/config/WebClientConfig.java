@@ -16,8 +16,8 @@ public class WebClientConfig {
     @Bean
     public WebClient huggingFaceWebClient(){
         return WebClient.builder()
-                .baseUrl("https://api-inference.huggingface.co")
-                .defaultHeader("Authorization" , "Bearer "+apiKey)
+                .baseUrl("https://router.huggingface.co")
+                .defaultHeader("Authorization" , "Bearer " + apiKey)
                 .defaultHeader("Content-Type" , "application/json")
                 .codecs(config -> config
                         .defaultCodecs()
