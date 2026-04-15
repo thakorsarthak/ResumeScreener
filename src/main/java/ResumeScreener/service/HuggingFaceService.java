@@ -109,12 +109,7 @@ private List<String> extractSkills(String text){
         if (response == null || response.isEmpty()) {
             return fallbackKeywordMatch(text);        }
 
-        // HuggingFace returns labels with scores
-        // We take labels where score > 0.5 as "present"
-//        Map result = response.get(0);
-//        List<String> labels = (List<String>) result.get("labels");
-//        List<Double> scores = (List<Double>) result.get("scores");
-//
+
         List<String> detectedSkills = response.stream()
                 .sorted((a, b) -> Double.compare(b.getScore(), a.getScore()))
                 .limit(5)
