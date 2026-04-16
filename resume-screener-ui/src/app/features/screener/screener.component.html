@@ -1,0 +1,139 @@
+<div class="p-4 max-w-4xl mx-auto">
+
+  <div class="text-center mb-5">
+    <h1 class="text-4xl font-bold text-900 mb-2">Resume Screener</h1>
+    <p class="text-600">Upload your resume and match it against a job description</p>
+  </div>
+
+  <!-- Upload Card -->
+  <p-card class="mb-4">
+    <div class="flex flex-column gap-4">
+
+      <!-- File Upload -->
+      <div>
+        <label class="block text-900 font-medium mb-2">Resume (PDF only)</label>
+        <p-fileUpload
+          mode="basic"
+          accept=".pdf"
+          [maxFileSize]="10000000"
+          chooseLabel="Choose PDF"
+          (onSelect)="onFileSelect($event)"
+          (onRemove)="onFileRemove()"
+          [auto]="false">
+        </p-fileUpload>
+        <small *ngIf="selectedFile" class="text-green-500 mt-1 block">
+          ✓ {{ selectedFile.name }} selected
+        </small>
+      </div>
+
+      <!-- Job Description -->
+      <div>
+        <label class="block text-900 font-medium mb-2">Job Description</label>
+        <textarea
+          pInputTextarea
+          [(ngModel)]="jobDescription"
+          rows="6"
+          class="w-full"
+          placeholder="Paste the full job description here...">
+        </textarea>
+        <small class="text-500">Minimum 20 characters for accurate matching</small>
+      </div>
+
+      <!-- Submit -->
+      <div class="flex justify-content-between align-items-center">
+        <p-button
+          label="Screen Resume"
+          icon="pi pi-search"
+          [disabled]="!canSubmit() || isLoading"
+          (onClick)="screenResume()">
+        </p-button>
+
+        <p-button
+          *ngIf="sessionService.hasSession()"
+          label="View History"
+          icon="pi pi-history"
+          severity="secondary"
+          (onClick)="viewHistory()">
+        </p-button>
+      </div>
+
+    </div>
+  </p-card>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="flex justify-content-center p-5">
+    <p-progressSpinner></p-progressSpinner>
+    <p class="ml-3 text-600">Analyzing resume... this may take 20-30 seconds</p>
+  </div>
+
+  <!-- Error -->
+  <p-messages
+    *ngIf="errorMessage"
+    [value]="[{severity: 'error', summary: 'Error', detail: errorMessage}]">
+  </p-messages>
+
+  <!-- Result Card -->
+  <p-card *ngIf="result" header="Screening Result">
+
+    <!-- Score + Verdict -->
+    <div class="flex align-items-center gap-4 mb-4">
+      <div class="text-center">
+        <div class="text-5xl font-bold"
+             [ngClass]="{
+               'text-green-500': result.matchScore >= 70,
+               'text-yellow-500': result.matchScore >= 50 && result.matchScore < 70,
+               'text-red-500': result.matchScore < 50
+             }">
+          {{ result.matchScore }}%
+        </div>
+        <div class="text-500 text-sm">Match Score</div>
+      </div>
+
+      <p-tag
+        [value]="result.verdict"
+        [severity]="getVerdictSeverity(result.verdict)"
+        styleClass="text-lg px-3 py-2">
+      </p-tag>
+    </div>
+
+    <!-- Skills -->
+    <div class="grid">
+      <div class="col-6">
+        <h4 class="text-green-600 mb-2">✓ Matched Skills</h4>
+        <div class="flex flex-wrap gap-2">
+          <p-chip
+            *ngFor="let skill of result.matchedSkills"
+            [label]="skill"
+            styleClass="bg-green-100 text-green-700">
+          </p-chip>
+          <span *ngIf="result.matchedSkills.length === 0"
+                class="text-500">None detected</span>
+        </div>
+      </div>
+
+      <div class="col-6">
+        <h4 class="text-red-500 mb-2">✗ Missing Skills</h4>
+        <div class="flex flex-wrap gap-2">
+          <p-chip
+            *ngFor="let skill of result.missingSkills"
+            [label]="skill"
+            styleClass="bg-red-100 text-red-600">
+          </p-chip>
+          <span *ngIf="result.missingSkills.length === 0"
+                class="text-500">None missing</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session ID info -->
+    <div class="mt-4 p-3 bg-blue-50 border-round">
+      <small class="text-blue-700">
+        <i class="pi pi-info-circle mr-1"></i>
+        Your session ID: <strong>{{ result.sessionId }}</strong>
+        — save this to access your history from another device
+      </small>
+    </div>
+
+  </p-card>
+
+</div>

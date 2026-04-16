@@ -1,0 +1,89 @@
+
+<div class="p-4 max-w-6xl mx-auto">
+
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h1 class="text-3xl font-bold text-900">Screening History</h1>
+    <p-button
+      label="Screen New Resume"
+      icon="pi pi-plus"
+      routerLink="/screen">
+    </p-button>
+  </div>
+
+  <!-- No session -->
+  <p-card *ngIf="noSession" class="text-center">
+    <i class="pi pi-inbox text-5xl text-300 mb-3 block"></i>
+    <p class="text-600">No session found. Screen a resume first to see your history.</p>
+    <p-button label="Go to Screener" routerLink="/screen" class="mt-3"></p-button>
+  </p-card>
+
+  <!-- History Table -->
+  <p-card *ngIf="!noSession">
+    <p-table
+      [value]="history"
+      [loading]="isLoading"
+      [paginator]="true"
+      [rows]="10"
+      styleClass="p-datatable-gridlines">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Resume</th>
+          <th>Job Description</th>
+          <th>Score</th>
+          <th>Verdict</th>
+          <th>Matched Skills</th>
+          <th>Date</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-item>
+        <tr>
+          <td>{{ item.resumeFileName }}</td>
+          <td>
+            <span class="text-overflow-ellipsis overflow-hidden"
+                  style="max-width: 200px; display: block">
+              {{ item.jobDescription }}
+            </span>
+          </td>
+          <td>
+            <span class="font-bold"
+                  [ngClass]="{
+                    'text-green-500': item.matchScore >= 70,
+                    'text-yellow-500': item.matchScore >= 50,
+                    'text-red-500': item.matchScore < 50
+                  }">
+              {{ item.matchScore }}%
+            </span>
+          </td>
+          <td>
+            <p-tag
+              [value]="item.verdict"
+              [severity]="getVerdictSeverity(item.verdict)">
+            </p-tag>
+          </td>
+          <td>
+            <div class="flex flex-wrap gap-1">
+              <p-chip
+                *ngFor="let skill of item.matchedSkills"
+                [label]="skill"
+                styleClass="text-xs">
+              </p-chip>
+            </div>
+          </td>
+          <td>{{ item.screenedAt | date:'dd MMM yyyy, HH:mm' }}</td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center text-500 p-5">
+            No screening history yet
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </p-card>
+
+</div>

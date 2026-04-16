@@ -1,0 +1,16 @@
+<!-- navbar.component.html -->
+<p-menubar>
+  <ng-template pTemplate="start">
+    <span class="text-xl font-bold text-primary">
+      📄 Resume Screener
+    </span>
+  </ng-template>
+  <ng-template pTemplate="end">
+    <div class="flex gap-3">
+      <a routerLink="/screen" routerLinkActive="font-bold"
+         class="text-color no-underline">Screen Resume</a>
+      <a routerLink="/history" routerLinkActive="font-bold"
+         class="text-color no-underline">History</a>
+    </div>
+  </ng-template>
+</p-menubar>
