@@ -3,6 +3,8 @@ package ResumeScreener.service;
 import ResumeScreener.config.WebClientConfig;
 import ResumeScreener.dto.HuggingFaceLabelScore;
 import ResumeScreener.dto.ScreeningResultDTO;
+import ResumeScreener.entity.ScreeningHistory;
+import ResumeScreener.repository.ScreeningHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +23,18 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class HuggingFaceService {
 
     private final WebClient huggingFaceWebClient;
 
-    public HuggingFaceService(WebClient huggingFaceWebClient) {
-        this.huggingFaceWebClient = huggingFaceWebClient;
-    }
+    private final ScreeningHistoryRepository historyRepository;
+
+//    public HuggingFaceService(WebClient huggingFaceWebClient
+//            , ScreeningHistoryRepository historyRepository ) {
+//        this.huggingFaceWebClient = huggingFaceWebClient;
+//        this.historyRepository = historyRepository;
+//    }
 
     private static final List<String> SKILL_LABELS = List.of(
             "Java", "Spring Boot", "Python", "JavaScript", "TypeScript",
@@ -44,7 +51,8 @@ public class HuggingFaceService {
     }
 
 
-public ScreeningResultDTO screenResume(String resumeText , String jobDescription){
+public ScreeningResultDTO screenResume(String resumeText , String jobDescription
+                , String fileName ,  String sessionId){
 
     // 1 --> Extracting skills
     List<String> resumeSkills = extractSkills(resumeText);
@@ -77,12 +85,32 @@ public ScreeningResultDTO screenResume(String resumeText , String jobDescription
             : finalScore >= 50 ? "PARTIAL MATCH"
             : "WEAK MATCH";
 
+    //saving to db
+    ScreeningHistory history = ScreeningHistory.builder()
+            .sessionId(sessionId)
+            .resumeFileName(fileName)
+            .jobDescription(jobDescription)
+            .resumeText(resumeText.length() > 5000
+                 ? resumeText.substring(0, 500) : resumeText)
+            .matchScore(finalScore)
+            .matchedSkills(String.join(",", matchedSkills))
+            .missingSkills(String.join("," , missingSkills))
+            .verdict(verdict)
+            .build();
+
+        ScreeningHistory savedhostory = historyRepository.save(history);
+        log.info("Screening saved with id: {}", savedhostory.getId());
+
     return ScreeningResultDTO.builder()
+            .id(savedhostory.getId())
+            .resumeFileName(fileName)
+            .sessionId(sessionId)
             .matchScore(Math.round(finalScore * 100.0)/100.0)
             .matchedSkills(matchedSkills)
             .missingSkills(missingSkills)
             .verdict(verdict)
             .jobDescription(jobDescription)
+            .screenAt(savedhostory.getScreenedAt())
             .build();
 }
 
