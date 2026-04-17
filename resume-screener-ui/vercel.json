@@ -1,0 +1,7 @@
+{
+  "buildCommand": "ng build --configuration production",
+  "outputDirectory": "dist/resume-screener-ui/browser",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
