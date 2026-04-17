@@ -1,6 +1,8 @@
 package ResumeScreener.config;
 
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -25,5 +27,11 @@ public class CorsConfig {
                         .allowCredentials(true);
             }
         };
+    }
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .addServersItem(new Server().url("https://resumescreener-production-58aa.up.railway.app/"));
     }
 }
