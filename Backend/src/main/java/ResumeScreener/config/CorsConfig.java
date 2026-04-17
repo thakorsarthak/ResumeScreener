@@ -20,8 +20,8 @@ public class CorsConfig {
                                 "http://localhost:4200",
                                 "https://resume-screener-lilac.vercel.app"  // Angular dev server
                         )
-                        .allowedMethods("GET", "POST")
-                        .allowedHeaders()
+                        .allowedMethods("GET", "POST" , "PUT", "DELETE", "OPTIONS")
+                        .allowedHeaders("*")
                         .allowCredentials(true);
             }
         };
