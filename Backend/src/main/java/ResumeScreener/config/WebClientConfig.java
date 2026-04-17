@@ -24,14 +24,4 @@ public class WebClientConfig {
                         .maxInMemorySize(10 * 1024 * 1024))
                 .build();
     }
-
-    @Bean
-    public CommandLineRunner testBean(ApplicationContext context) {
-        return args -> {
-            System.out.println(context.getBean(WebClient.class));
-        };
-    }
-
-
-
 }
