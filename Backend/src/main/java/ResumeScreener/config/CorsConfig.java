@@ -20,7 +20,8 @@ public class CorsConfig {
                 registry.addMapping("/**") // Apply to all endpoints
                         .allowedOrigins(
                                 "http://localhost:4200",
-                                "https://resume-screener-lilac.vercel.app"  // Angular dev server
+                                "https://resume-screener-lilac.vercel.app", // Angular dev server
+                                "https://resumescreener-production-58aa.up.railway.app/api"
                         )
                         .allowedMethods("GET", "POST" , "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
