@@ -32,6 +32,6 @@ public class CorsConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("https://resumescreener-production-58aa.up.railway.app/"));
+                .addServersItem(new Server().url("https://resumescreener-production-58aa.up.railway.app/api"));
     }
 }
