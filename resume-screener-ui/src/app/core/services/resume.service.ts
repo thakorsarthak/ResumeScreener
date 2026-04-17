@@ -12,7 +12,7 @@ import { environment } from '../../../environments/environment';
 })
 export class ResumeService {
 
-  private apiUrl = environment.apiUrl;
+ private apiUrl = `${environment.apiUrl}`;
 
   constructor(private http: HttpClient) {}
 
