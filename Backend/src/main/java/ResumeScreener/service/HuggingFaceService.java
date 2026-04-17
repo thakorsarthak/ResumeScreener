@@ -158,7 +158,7 @@ private List<String> extractSkills(String text){
                 .bodyValue(requestBody)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<List<HuggingFaceLabelScore>>() {})
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(120))
                 .block();
 
 
@@ -228,7 +228,7 @@ private List<String> extractSkills(String text){
                     .bodyValue(requestBody)
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<List<Double>>() {})
-                    .timeout(Duration.ofSeconds(30))
+                    .timeout(Duration.ofSeconds(120))
                     .block();
 
             if (response == null || response.isEmpty()) {
@@ -245,6 +245,5 @@ private List<String> extractSkills(String text){
             return 50.0;
         }
     }
-
 
 }
