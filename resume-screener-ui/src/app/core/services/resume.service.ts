@@ -3,14 +3,16 @@ import { Injectable } from '@angular/core';
 
 import { ScreeningResult } from '../models/screening.model';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
+
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class ResumeService {
 
-  private apiUrl = `${environment.apiUrl}/resume`;
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
