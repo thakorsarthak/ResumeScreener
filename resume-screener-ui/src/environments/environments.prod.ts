@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-railway-url.up.railway.app/api'
+  apiUrl: 'https://resumescreener-production-58aa.up.railway.app/api'
 };

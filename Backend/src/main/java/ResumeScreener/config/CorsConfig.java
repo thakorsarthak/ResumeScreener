@@ -17,7 +17,8 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Apply to all endpoints
                         .allowedOrigins(
-                                "http://localhost:4200"       // Angular dev server
+                                "http://localhost:4200",
+                                "${FRONTEND_URL:resume-screener-git-main-thakorsarthak2912-8751s-projects.vercel.app}"  // Angular dev server
                         )
                         .allowedMethods("GET", "POST")
                         .allowedHeaders()
