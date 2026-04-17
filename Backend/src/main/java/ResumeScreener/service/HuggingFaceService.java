@@ -24,18 +24,17 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
-@RequiredArgsConstructor
 public class HuggingFaceService {
 
     private final WebClient huggingFaceWebClient;
 
     private final ScreeningHistoryRepository historyRepository;
 
-//    public HuggingFaceService(WebClient huggingFaceWebClient
-//            , ScreeningHistoryRepository historyRepository ) {
-//        this.huggingFaceWebClient = huggingFaceWebClient;
-//        this.historyRepository = historyRepository;
-//    }
+    public HuggingFaceService(WebClient huggingFaceWebClient
+            , ScreeningHistoryRepository historyRepository ) {
+        this.huggingFaceWebClient = huggingFaceWebClient;
+        this.historyRepository = historyRepository;
+    }
 
     // Expanded skill taxonomy — grouped by category
     private static final Map<String, List<String>> SKILL_TAXONOMY = Map.of(
