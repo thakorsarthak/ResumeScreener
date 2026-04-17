@@ -37,6 +37,35 @@ public class HuggingFaceService {
 //        this.historyRepository = historyRepository;
 //    }
 
+    // Expanded skill taxonomy — grouped by category
+    private static final Map<String, List<String>> SKILL_TAXONOMY = Map.of(
+            "Java",             List.of("java"),
+            "Spring Boot",      List.of("spring boot", "springboot", "spring-boot"),
+            "Angular",          List.of("angular", "angularjs", "angular.js"),
+            "React",            List.of("react", "reactjs", "react.js"),
+            "Node.js",          List.of("node.js", "nodejs", "node js"),
+            "Python",           List.of("python"),
+            "TypeScript",       List.of("typescript", "ts"),
+            "JavaScript",       List.of("javascript", "js"),
+            "MySQL",            List.of("mysql", "my sql"),
+            "MongoDB",          List.of("mongodb", "mongo")
+    );
+
+
+    // Second map because Java limits Map.of() to 10 entries
+    private static final Map<String, List<String>> SKILL_TAXONOMY_2 = Map.of(
+            "Docker",           List.of("docker"),
+            "Kubernetes",       List.of("kubernetes", "k8s"),
+            "AWS",              List.of("aws", "amazon web services"),
+            "REST API",         List.of("rest api", "restful", "rest"),
+            "Microservices",    List.of("microservices", "micro services"),
+            "Git",              List.of("git", "github", "gitlab"),
+            "Redis",            List.of("redis"),
+            "Kafka",            List.of("kafka", "apache kafka"),
+            "Machine Learning", List.of("machine learning", "ml", "deep learning"),
+            "SQL",              List.of("sql", "pl/sql")
+    );
+
     private static final List<String> SKILL_LABELS = List.of(
             "Java", "Spring Boot", "Python", "JavaScript", "TypeScript",
             "React", "Angular", "Node.js", "MySQL", "MongoDB",
@@ -156,6 +185,31 @@ private List<String> extractSkills(String text){
         return  fallbackKeywordMatch(text);
     }
 }
+
+
+    //method to extract skill from our skill string
+//    private List<String> extractSkills(String text) {
+//        String lowerText = text.toLowerCase();
+//
+//        List<String> detected = new ArrayList<>();
+//
+//        // Check taxonomy 1
+//        SKILL_TAXONOMY.forEach((skill, keywords) -> {
+//            boolean found = keywords.stream()
+//                    .anyMatch(keyword -> lowerText.contains(keyword.toLowerCase()));
+//            if (found) detected.add(skill);
+//        });
+//
+//        // Check taxonomy 2
+//        SKILL_TAXONOMY_2.forEach((skill, keywords) -> {
+//            boolean found = keywords.stream()
+//                    .anyMatch(keyword -> lowerText.contains(keyword.toLowerCase()));
+//            if (found) detected.add(skill);
+//        });
+//
+//        log.info("Extracted skills from text: {}", detected);
+//        return detected;
+//    }
 
     private double getSemanticSimilarity(String resumeText, String jobDescription) {
         Map<String, Object> requestBody = Map.of(
